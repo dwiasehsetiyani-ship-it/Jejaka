@@ -1,11 +1,24 @@
 import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
+import Splash from '../src/components/Splash';
 import { migrasi } from '../src/db/skema';
 import { TemaProvider, useTema } from '../src/theme/tema';
 
 function Isi() {
   const { warna, gelap } = useTema();
+  const [splash, setSplash] = useState(true);
+
+  if (splash) {
+    return (
+      <>
+        <StatusBar style="light" />
+        <Splash onSelesai={() => setSplash(false)} />
+      </>
+    );
+  }
+
   return (
     <>
       <StatusBar style={gelap ? 'light' : 'dark'} />
@@ -18,6 +31,8 @@ function Isi() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="tambah" options={{ title: 'Tambah Entri' }} />
+        <Stack.Screen name="entri/[id]/index" options={{ title: 'Detail Entri' }} />
+        <Stack.Screen name="entri/[id]/ubah" options={{ title: 'Ubah Entri' }} />
         <Stack.Screen name="pengaturan" options={{ title: 'Pengaturan' }} />
       </Stack>
     </>
