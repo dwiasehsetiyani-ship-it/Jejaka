@@ -2,10 +2,13 @@ import { Directory, File, Paths } from 'expo-file-system';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert, Linking } from 'react-native';
+import { titikDariExif, waktuDariExif, type Titik } from '../services/lokasi';
 import { buatId } from './id';
 
 const LEBAR_MAKS = 1280;
 const UKURAN_MAKS = 500 * 1024; // 500 KB
+
+export type FotoGaleri = { uri: string; titik: Titik | null; waktu: string | null };
 
 // Perkecil lebar ke maks 1280 px, lalu turunkan kualitas sampai < 500 KB.
 async function kompres(uri: string, lebar: number): Promise<string> {
@@ -41,15 +44,22 @@ export async function ambilDariKamera(): Promise<string | null> {
   return kompres(a.uri, a.width);
 }
 
-export async function pilihDariGaleri(batas: number): Promise<string[]> {
+export async function pilihDariGaleri(batas: number): Promise<FotoGaleri[]> {
   const hasil = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ['images'],
     allowsMultipleSelection: batas > 1,
     selectionLimit: batas,
     quality: 1,
+    exif: true,
   });
   if (hasil.canceled) return [];
-  return Promise.all(hasil.assets.map((a) => kompres(a.uri, a.width)));
+  return Promise.all(
+    hasil.assets.map(async (a) => ({
+      uri: await kompres(a.uri, a.width),
+      titik: titikDariExif(a.exif),
+      waktu: waktuDariExif(a.exif),
+    }))
+  );
 }
 
 // Pindahkan foto hasil kompres ke penyimpanan permanen aplikasi.

@@ -1,14 +1,33 @@
+import NetInfo from '@react-native-community/netinfo';
 import { Stack } from 'expo-router';
-import { SQLiteProvider } from 'expo-sqlite';
+import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Splash from '../src/components/Splash';
+import { isiCuacaTertunda } from '../src/db/entri';
 import { migrasi } from '../src/db/skema';
 import { TemaProvider, useTema } from '../src/theme/tema';
 
 function Isi() {
   const { warna, gelap } = useTema();
+  const db = useSQLiteContext();
   const [splash, setSplash] = useState(true);
+  const jalan = useRef(false);
+
+  // Isi cuaca yang masih "menunggu" setiap kali koneksi tersedia.
+  useEffect(() => {
+    const berhenti = NetInfo.addEventListener((state) => {
+      if (!state.isConnected || state.isInternetReachable === false) return;
+      if (jalan.current) return;
+      jalan.current = true;
+      isiCuacaTertunda(db)
+        .catch(() => {})
+        .finally(() => {
+          jalan.current = false;
+        });
+    });
+    return berhenti;
+  }, [db]);
 
   if (splash) {
     return (

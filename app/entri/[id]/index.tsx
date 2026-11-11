@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
@@ -62,6 +63,9 @@ export default function DetailEntri() {
     year: 'numeric',
   });
 
+  const cuacaTerisi = entri.status_cuaca === 'terisi' && entri.suhu !== null;
+  const punyaLokasi = entri.latitude !== null && entri.longitude !== null;
+
   return (
     <ScrollView style={{ backgroundColor: warna.latar }} contentContainerStyle={{ paddingBottom: 40 }}>
       {foto.length > 0 && (
@@ -79,6 +83,32 @@ export default function DetailEntri() {
         <View style={s.baris}>
           <Bintang nilai={entri.rating} />
           <Text style={{ color: warna.aksen, fontWeight: '700', textTransform: 'capitalize' }}>{entri.kategori}</Text>
+        </View>
+
+        <View style={[s.cuaca, { backgroundColor: warna.kartu, borderColor: warna.garis }]}>
+          <Ionicons
+            name={cuacaTerisi ? 'partly-sunny-outline' : 'cloud-offline-outline'}
+            size={28}
+            color={warna.aksen}
+          />
+          <View style={{ flex: 1 }}>
+            {cuacaTerisi ? (
+              <>
+                <Text style={[s.suhu, { color: warna.teks }]}>{entri.suhu}°C</Text>
+                <Text style={{ color: warna.teksRedup }}>{entri.kondisi_cuaca}</Text>
+              </>
+            ) : punyaLokasi ? (
+              <>
+                <Text style={{ color: warna.teks, fontWeight: '700' }}>Cuaca menunggu koneksi</Text>
+                <Text style={{ color: warna.teksRedup }}>Akan terisi sendiri saat internet tersambung.</Text>
+              </>
+            ) : (
+              <>
+                <Text style={{ color: warna.teks, fontWeight: '700' }}>Cuaca tidak tersedia</Text>
+                <Text style={{ color: warna.teksRedup }}>Entri ini tidak punya data lokasi.</Text>
+              </>
+            )}
+          </View>
         </View>
 
         <Text style={[s.label, { color: warna.teks }]}>Catatan</Text>
@@ -108,6 +138,16 @@ const s = StyleSheet.create({
   isi: { padding: 16, gap: 6 },
   nama: { fontSize: 22, fontWeight: '800' },
   baris: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
+  cuaca: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 14,
+  },
+  suhu: { fontSize: 24, fontWeight: '800' },
   label: { fontSize: 14, fontWeight: '700', marginTop: 18, marginBottom: 4 },
   barisTombol: { flexDirection: 'row', gap: 12, marginTop: 28 },
   tombol: { flex: 1, borderWidth: 1.5, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
