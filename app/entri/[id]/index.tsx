@@ -115,6 +115,16 @@ export default function DetailEntri() {
         <Text style={{ color: entri.catatan ? warna.teks : warna.teksRedup, lineHeight: 21 }}>
           {entri.catatan || 'Tidak ada catatan.'}
         </Text>
+        
+        {punyaLokasi && (
+          <Pressable
+            onPress={() => router.navigate({ pathname: '/peta', params: { id, t: String(Date.now()) } })}
+            style={[s.lihatPeta, { borderColor: warna.garis, backgroundColor: warna.kartu }]}
+          >
+            <Ionicons name="location-outline" size={18} color={warna.aksen} />
+            <Text style={{ color: warna.aksen, fontWeight: '600' }}>Lihat di peta</Text>
+          </Pressable>
+        )}
 
         <View style={s.barisTombol}>
           <Pressable
@@ -149,6 +159,16 @@ const s = StyleSheet.create({
   },
   suhu: { fontSize: 24, fontWeight: '800' },
   label: { fontSize: 14, fontWeight: '700', marginTop: 18, marginBottom: 4 },
+    lihatPeta: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 12,
+    marginTop: 16,
+  },
   barisTombol: { flexDirection: 'row', gap: 12, marginTop: 28 },
   tombol: { flex: 1, borderWidth: 1.5, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
 });

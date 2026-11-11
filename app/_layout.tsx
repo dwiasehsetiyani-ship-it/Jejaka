@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import Splash from '../src/components/Splash';
 import { isiCuacaTertunda } from '../src/db/entri';
 import { migrasi } from '../src/db/skema';
+import { FilterProvider } from '../src/filter';
 import { TemaProvider, useTema } from '../src/theme/tema';
 
 function Isi() {
@@ -62,7 +63,9 @@ export default function RootLayout() {
   return (
     <SQLiteProvider databaseName="jejaka.db" onInit={migrasi}>
       <TemaProvider>
-        <Isi />
+        <FilterProvider>
+          <Isi />
+        </FilterProvider>
       </TemaProvider>
     </SQLiteProvider>
   );
