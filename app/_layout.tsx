@@ -51,6 +51,7 @@ function Isi() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="tambah" options={{ title: 'Tambah Entri' }} />
+                <Stack.Screen name="tambah-wishlist" options={{ title: 'Tambah Tempat Tujuan' }} />
         <Stack.Screen name="entri/[id]/index" options={{ title: 'Detail Entri' }} />
         <Stack.Screen name="entri/[id]/ubah" options={{ title: 'Ubah Entri' }} />
         <Stack.Screen name="pengaturan" options={{ title: 'Pengaturan' }} />

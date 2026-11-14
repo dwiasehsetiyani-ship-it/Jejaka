@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import { FotoForm, simpanEntri, ubahEntri } from '../db/entri';
 import { DAFTAR_KATEGORI, Entri, Kategori } from '../db/tipe';
+import { tandaiSudah } from '../db/wishlist';
 import { ambilCuaca } from '../services/cuaca';
 import { isiTempat, posisiSaatIni, type Titik } from '../services/lokasi';
 import { useTema } from '../theme/tema';
@@ -27,25 +28,26 @@ import Bintang from './Bintang';
 
 const MAKS_FOTO = 3;
 
-type Props = { awal?: Entri; fotoAwal?: string[] };
+type Prefill = { nama: string; kota: string; latitude: number; longitude: number };
+type Props = { awal?: Entri; fotoAwal?: string[]; prefill?: Prefill; wishlistId?: string };
 type InfoLokasi = 'ditolak' | 'gagal' | 'tanpaMetadata' | null;
 
-export default function FormEntri({ awal, fotoAwal = [] }: Props) {
+export default function FormEntri({ awal, fotoAwal = [], prefill, wishlistId }: Props) {
   const { warna } = useTema();
   const db = useSQLiteContext();
   const router = useRouter();
   const net = useNetInfo();
   const online = net.isConnected !== false && net.isInternetReachable !== false;
 
-  const [nama, setNama] = useState(awal?.nama_tempat ?? '');
-  const [kota, setKota] = useState(awal?.kota ?? '');
+  const [nama, setNama] = useState(awal?.nama_tempat ?? prefill?.nama ?? '');
+  const [kota, setKota] = useState(awal?.kota ?? prefill?.kota ?? '');
   const [kategori, setKategori] = useState<Kategori>(awal?.kategori ?? 'alam');
   const [rating, setRating] = useState(awal?.rating ?? 0);
   const [catatan, setCatatan] = useState(awal?.catatan ?? '');
   const [foto, setFoto] = useState<FotoForm[]>(fotoAwal.map((uri) => ({ uri, baru: false })));
   const [tanggal, setTanggal] = useState(awal?.tanggal_kunjungan ?? new Date().toISOString());
-  const [lat, setLat] = useState<number | null>(awal?.latitude ?? null);
-  const [lon, setLon] = useState<number | null>(awal?.longitude ?? null);
+  const [lat, setLat] = useState<number | null>(awal?.latitude ?? prefill?.latitude ?? null);
+  const [lon, setLon] = useState<number | null>(awal?.longitude ?? prefill?.longitude ?? null);
   const [suhu, setSuhu] = useState<number | null>(awal?.suhu ?? null);
   const [kondisi, setKondisi] = useState<string | null>(awal?.kondisi_cuaca ?? null);
   const [sibuk, setSibuk] = useState(false);
@@ -62,6 +64,17 @@ export default function FormEntri({ awal, fotoAwal = [] }: Props) {
       .then((r) => setSaran(r.map((x) => x.kota)))
       .catch(() => {});
   }, [db]);
+
+  // Dari wishlist: lokasi sudah ada, tinggal isi cuaca
+  useEffect(() => {
+    if (prefill && !awal) {
+      isiOtomatis(
+        { latitude: prefill.latitude, longitude: prefill.longitude },
+        new Date().toISOString(),
+        false
+      );
+    }
+  }, []);
 
   // Isi nama tempat, kota, dan cuaca dari satu titik lokasi.
   async function isiOtomatis(titik: Titik, waktuISO: string, timpa: boolean) {
@@ -164,7 +177,10 @@ export default function FormEntri({ awal, fotoAwal = [] }: Props) {
     };
     try {
       if (awal) await ubahEntri(db, awal.id, data, foto);
-      else await simpanEntri(db, data, foto);
+      else {
+        await simpanEntri(db, data, foto);
+        if (wishlistId) await tandaiSudah(db, wishlistId);
+      }
       router.back();
     } catch {
       setSibuk(false);
