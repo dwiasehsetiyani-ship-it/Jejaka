@@ -55,6 +55,7 @@ function Isi() {
         <Stack.Screen name="entri/[id]/index" options={{ title: 'Detail Entri' }} />
         <Stack.Screen name="entri/[id]/ubah" options={{ title: 'Ubah Entri' }} />
         <Stack.Screen name="pengaturan" options={{ title: 'Pengaturan' }} />
+                <Stack.Screen name="ekspor" options={{ title: 'Ekspor ke PDF' }} />
       </Stack>
     </>
   );
