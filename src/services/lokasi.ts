@@ -5,8 +5,8 @@ export type Titik = { latitude: number; longitude: number };
 export type Tempat = { nama_tempat: string; kota: string };
 export type HasilPosisi = { titik: Titik | null; ditolak: boolean };
 
-// GANTI email di bawah dengan emailmu. Nominatim mewajibkan User-Agent yang bisa dihubungi.
-const USER_AGENT = 'Jejaka/1.0 (tugas kuliah PBP; dwiasehsetiyani@gmail.com)';
+
+export const USER_AGENT = 'Jejaka/1.0 (tugas kuliah PBP; dwiasehsetiyani@gmail.com)';
 
 function kunci(t: Titik) {
   return `${t.latitude.toFixed(3)},${t.longitude.toFixed(3)}`;
